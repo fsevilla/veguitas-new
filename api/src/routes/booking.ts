@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import {
-    createBooking,
     confirmBooking,
     listAll
 } from '../controllers/bookings';
+import { createBooking } from '@/controllers/reservations';
 import { createBookingValidations } from './../middlewares/validations';
 import { validClientMiddleware } from './../middlewares/client';
 import { UserRoles } from './../types/user';
@@ -16,8 +16,8 @@ const requiredRoles = [UserRoles.ADMIN, UserRoles.MANAGER, UserRoles.SOCIAL];
 
 router.post('', validClientMiddleware, createBookingValidations(), createBooking);
 
-router.get('', authMiddleware, rolesMiddleware(requiredRoles), listAll);
-router.post('/:id/confirm', authMiddleware, rolesMiddleware(requiredRoles), confirmBooking);
+// router.get('', authMiddleware, rolesMiddleware(requiredRoles), listAll);
+// router.post('/:id/confirm', authMiddleware, rolesMiddleware(requiredRoles), confirmBooking);
 
 export default router;
 

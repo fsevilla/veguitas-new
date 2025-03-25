@@ -6,14 +6,15 @@ const schema = new Schema({
     email: { type: SchemaTypes.String },
     phone: { type: SchemaTypes.String },
     profile: { type: SchemaTypes.String },
-    createdBy: { type: SchemaTypes.ObjectId, required: true, ref: 'users' },
-    bookingId: { type: SchemaTypes.ObjectId, ref: 'bookings' },
+    createdBy: { type: SchemaTypes.ObjectId, ref: 'users' },
+    // bookingId: { type: SchemaTypes.ObjectId, ref: 'bookings' },
     status: { type: SchemaTypes.String, default: ReservationStatus.NEW },
     origin: { type: SchemaTypes.String, required: true },
     reservationDate: { type: SchemaTypes.Date, required: true },
     people: { type: SchemaTypes.Number, required: true },
     isBirthday: { type: SchemaTypes.Boolean },
     notes: { type: SchemaTypes.String },
+    confirmedBy: { type: SchemaTypes.ObjectId, ref: 'users' },
     cancelationReason: { type: SchemaTypes.String }
 }, {
     timestamps: true

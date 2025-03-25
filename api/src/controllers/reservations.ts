@@ -6,6 +6,7 @@ import { validationResult, matchedData } from 'express-validator';
 
 import { HttpStatus } from "./../types/http-status";
 import Reservation from "./../models/reservation";
+import { ReservationOrigin, ReservationStatus } from '@/types/reservation';
 
 export async function listAll(req: Request, res: Response) {
     try {
@@ -133,12 +134,14 @@ export async function createReservation(req: Request, res: Response) {
             email: reservationData.email,
             phone: reservationData.phone,
             profile: reservationData.profile,
+            status: reservationData.status,
             origin: reservationData.origin,
             reservationDate: reservationDateTime,
             people: reservationData.people,
             isBirthday: reservationData.isBirthday,
             notes: reservationData.notes,
             createdBy: req.user._id,
+            confirmedBy: reservationData.status === ReservationStatus.CONFIRMED ? req.user._id : undefined
         }).then(response => {
             const cleanedReservation = Reservation.cleanRecord(response);
             res.send(cleanedReservation);
@@ -217,4 +220,60 @@ export async function deleteReservation(req: Request, res: Response) {
         res.status(HttpStatus.BAD_REQUEST).send({ message: 'Invalid reservation id' })
     }
 
+}
+
+// For public access through the website
+export async function createBooking(req: Request, res: Response) {
+    const result = validationResult(req);
+
+    if (result.isEmpty()) {
+
+        const reservationData = matchedData(req);
+
+        const reservationDate = reservationData.reservationDate;
+        const reservationTime = reservationData.reservationTime;
+        const reservationDateTime = `${reservationDate}T${reservationTime}:00.000Z`;
+
+        const requestedDate = new Date(reservationDateTime);
+        const requestedDayOfWeek = requestedDate.getDay();
+
+        if (!Reservation.isValidDay(requestedDayOfWeek) || !Reservation.isValidHour(reservationTime)) {
+            res.status(HttpStatus.BAD_REQUEST).send({ message: 'Incorrect date/time'});
+            return;
+        }
+        
+
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        const fixedNow = new Date(now.getTime() - (offset*60*1000));
+        if (requestedDate < fixedNow) {
+            res.status(HttpStatus.BAD_REQUEST).send({ message: 'Date cannot be in the past'});
+            return;
+        }
+
+        
+        Reservation.create({
+            name: reservationData.name,
+            email: reservationData.email,
+            phone: reservationData.phone,
+            status: reservationData.status,
+            origin: ReservationOrigin.WEBSITE,
+            reservationDate: reservationDateTime,
+            people: reservationData.people,
+            isBirthday: reservationData.isBirthday,
+            notes: reservationData.notes,
+        }).then(() => {
+            // const cleanedReservation = Reservation.cleanRecord(response);
+            res.send({ message: 'Booking created' });
+        }).catch(e => {
+            if ((e.message as string).includes('duplicate key')) {
+                res.status(HttpStatus.BAD_REQUEST).send({ message: 'Reservation already exists' })
+            } else {
+                console.log('Failed to create booking: ', e);
+                res.status(HttpStatus.BAD_REQUEST).send({ message: 'Could not create booking' })
+            }
+        })
+    } else {
+        res.status(HttpStatus.BAD_REQUEST).send({ message: 'Missing data' })
+    }
 }

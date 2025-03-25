@@ -66,7 +66,7 @@ export class Reservation extends BaseModel  {
         })
     }
 
-    findAndConfirm(reservationId: Types.ObjectId) {
+    findAndConfirm(reservationId: Types.ObjectId, userId: Types.ObjectId) {
         return ReservationSchema.findOneAndUpdate({
             _id: reservationId,
             status: { $in: [
@@ -74,7 +74,8 @@ export class Reservation extends BaseModel  {
                 ReservationStatus.ACCEPTED
             ]}
         }, {
-            status: ReservationStatus.CONFIRMED
+            status: ReservationStatus.CONFIRMED,
+            confirmedBy: userId
         })
     }
 
@@ -92,6 +93,16 @@ export class Reservation extends BaseModel  {
         }, {
             status: ReservationStatus.DELETED
         })
+    }
+
+    isValidDay(day: number) {
+        // Wed to Sat ()
+        return day >= 3 && day <= 6;
+    }
+
+    isValidHour(time: string) {
+        const _time = +time.replace(':', '');
+        return _time >= 1900 && _time <= 2100;
     }
 }
 

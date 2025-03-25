@@ -25,7 +25,7 @@ export interface ReservationType {
     phone?: string;
     profile?: string;
     createdBy?: ObjectId;
-    bookingId?: ObjectId;
+    confirmedBy?: ObjectId;
     status?: ReservationStatus;
     origin: ReservationOrigin;
     reservationDate: string;
