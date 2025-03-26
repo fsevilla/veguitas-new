@@ -6,7 +6,7 @@ import { validationResult, matchedData } from 'express-validator';
 
 import { HttpStatus } from "./../types/http-status";
 import Reservation from "./../models/reservation";
-import { ReservationOrigin, ReservationStatus } from '@/types/reservation';
+import { ReservationOrigin, ReservationStatus, ReservationType } from './../types/reservation';
 
 export async function listAll(req: Request, res: Response) {
     try {
@@ -276,4 +276,25 @@ export async function createBooking(req: Request, res: Response) {
     } else {
         res.status(HttpStatus.BAD_REQUEST).send({ message: 'Missing data' })
     }
+}
+
+export async function confirmReservation(req: Request, res: Response) {
+
+    try {
+        const bookingId = new ObjectId(req.params.id);
+
+        Reservation.findAndConfirm(bookingId, req.user).then((response) => {
+            if (response) {
+                const cleanedReservation = Reservation.cleanRecord(response);
+                res.send(cleanedReservation);
+            } else {
+                res.status(HttpStatus.NOT_FOUND).send({ message: 'Reservation not found' })
+            }
+        }).catch(e => {
+            res.status(HttpStatus.BAD_REQUEST).send({ message: 'Could not confirm the reservation' });
+        })
+    } catch (e) {
+        res.status(HttpStatus.BAD_REQUEST).send({ message: 'Invalid booking id' })
+    }
+
 }

@@ -2,8 +2,9 @@ import { MongooseQueryOptions, Types } from 'mongoose';
 import { ReservationOrigin, ReservationStatus, ReservationType } from '../types/reservation';
 import ReservationSchema from './../schemas/reservation';
 import { BaseModel } from './db';
+import { RequestUser, UserType } from './../types/user';
 
-export class Reservation extends BaseModel  {
+export class Reservation extends BaseModel {
 
     constructor() {
         super(ReservationSchema);
@@ -18,7 +19,7 @@ export class Reservation extends BaseModel  {
             ReservationOrigin.WEBSITE,
             ReservationOrigin.OTHER,
         ]
-        
+
         return validOrigins.includes(origin as ReservationOrigin);
     }
 
@@ -31,7 +32,7 @@ export class Reservation extends BaseModel  {
             ReservationStatus.DELETED,
             ReservationStatus.NOSHOW,
         ]
-        
+
         return validStatus.includes(status as ReservationStatus);
     }
 
@@ -58,25 +59,29 @@ export class Reservation extends BaseModel  {
     findAndAccept(reservationId: Types.ObjectId) {
         return ReservationSchema.findOneAndUpdate({
             _id: reservationId,
-            status: { $in: [
-                ReservationStatus.NEW,
-            ]}
+            status: {
+                $in: [
+                    ReservationStatus.NEW,
+                ]
+            }
         }, {
             status: ReservationStatus.ACCEPTED
         })
     }
 
-    findAndConfirm(reservationId: Types.ObjectId, userId: Types.ObjectId) {
+    findAndConfirm(reservationId: Types.ObjectId, user: RequestUser) {
         return ReservationSchema.findOneAndUpdate({
             _id: reservationId,
-            status: { $in: [
-                ReservationStatus.NEW,
-                ReservationStatus.ACCEPTED
-            ]}
+            status: {
+                $in: [
+                    ReservationStatus.NEW,
+                    ReservationStatus.ACCEPTED
+                ]
+            }
         }, {
             status: ReservationStatus.CONFIRMED,
-            confirmedBy: userId
-        })
+            confirmedBy: user._id
+        }, { new: true })
     }
 
     findAndUpdate(reservationId: Types.ObjectId, data: MongooseQueryOptions) {

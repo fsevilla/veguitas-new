@@ -4,7 +4,8 @@ import {
     findById,
     createReservation,
     updateReservation,
-    deleteReservation
+    deleteReservation,
+    confirmReservation
 } from '../controllers/reservations';
 import { authMiddleware } from './../middlewares/auth';
 import { rolesMiddleware } from './../middlewares/role';
@@ -20,6 +21,7 @@ router.get('/:id', authMiddleware, rolesMiddleware(requiredRoles), findById);
 router.post('', authMiddleware, rolesMiddleware(requiredRoles), createReservationValidations(), createReservation);
 router.put('/:id', authMiddleware, rolesMiddleware(requiredRoles), updateReservationValidations(), updateReservation);
 router.delete('/:id', authMiddleware, rolesMiddleware(requiredRoles), deleteReservation);
+router.post('/:id/confirm', authMiddleware, rolesMiddleware(requiredRoles), confirmReservation);
 
 export default router;
 

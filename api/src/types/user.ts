@@ -15,6 +15,7 @@ export enum UserStatus {
 }
 
 export interface UserType {
+    _id?: ObjectId;
     name: string;
     email: string;
     password?: string;
