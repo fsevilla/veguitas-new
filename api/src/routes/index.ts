@@ -3,6 +3,7 @@ import authRoutes from './auth';
 import userRoutes from './user';
 import reservationRoutes from './reservations';
 import bookingRoutes from './booking';
+import surveysRoutes from './surveys';
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use(authRoutes);
 router.use('/users', userRoutes);
 router.use('/reservations', reservationRoutes);
 router.use('/booking', bookingRoutes);
+router.use('/surveys', surveysRoutes);
 
 export default router;
