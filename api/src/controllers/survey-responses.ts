@@ -6,10 +6,15 @@ import { validationResult, matchedData } from 'express-validator';
 
 import { HttpStatus } from "./../types/http-status";
 import SurveyResponse from "./../models/survey-response";
+import Survey from "./../models/survey";
 
 export async function listAllBySurveyId(req: Request, res: Response) {
     try {
-        const surveyId = new ObjectId(req.params.survey);
+        if (!req.query.survey) {
+            res.status(HttpStatus.BAD_REQUEST).send({ message: 'Missing Survey ID '});
+            return;
+        }
+        const surveyId = new ObjectId(req.query.survey as string);
         const responses = await SurveyResponse.findAll({ surveyId });
         const cleanedSurveyResponses = SurveyResponse.cleanRecords(responses);
         res.send(cleanedSurveyResponses);
@@ -38,6 +43,19 @@ export async function findById(req: Request, res: Response) {
 
 export async function createSurveyResponse(req: Request, res: Response) {
     const result = validationResult(req);
+
+    const surveyId = new ObjectId(req.body.survey as string);
+    const activeSurvey = await Survey.findIfActive(surveyId);
+
+    console.log('Active survey: ', activeSurvey);
+
+    if (!activeSurvey) {
+        res.status(HttpStatus.BAD_REQUEST).send({ message: 'Survey not found' });
+        return;
+    }
+
+    console.log('Active survey? ', activeSurvey, result);
+
 
     if (result.isEmpty()) {
 

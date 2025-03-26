@@ -4,6 +4,7 @@ import userRoutes from './user';
 import reservationRoutes from './reservations';
 import bookingRoutes from './booking';
 import surveysRoutes from './surveys';
+import surveyResponsesRoutes from './survey-responses';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/users', userRoutes);
 router.use('/reservations', reservationRoutes);
 router.use('/booking', bookingRoutes);
 router.use('/surveys', surveysRoutes);
+router.use('/survey-answers', surveyResponsesRoutes);
 
 export default router;

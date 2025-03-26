@@ -1,7 +1,7 @@
 import { ObjectId } from "mongoose";
 
 export interface ISurveyFieldResponse {
-    fieldId: ObjectId;
+    surveyFieldId: ObjectId;
     value: string | number | boolean | string[];
 }
 

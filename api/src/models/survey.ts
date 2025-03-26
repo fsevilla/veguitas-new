@@ -28,6 +28,13 @@ export class Survey extends BaseModel {
         })
     }
 
+    findIfActive(surveyId: Types.ObjectId) {
+        return SurveySchema.findOne({
+            _id: surveyId,
+            enabled: true
+        })
+    }
+
     findAndEnable(surveyId: Types.ObjectId) {
         return SurveySchema.findOneAndUpdate({
             _id: surveyId,
